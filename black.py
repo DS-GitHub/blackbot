@@ -5,7 +5,7 @@ from discord.ext import tasks, commands
 
 from dotenv import load_dotenv
 
-from os import system, getenv
+from os import system
 
 from dateutil import tz
 
@@ -957,7 +957,7 @@ async def changing_presence():
     await client.change_presence(activity=discord.Game(name=f'BLACKBOT 작동중! - 버그 제보 및 기타 건의사항 등은 DS .𝙿#7777에게'))
     await asyncio.sleep(8)
 
-load_dotenv('black.env') ; TOKEN = getenv('DISCORD_TOKEN')
+TOKEN = os.environ['token']
 try:
     client.run(TOKEN) ; TOKEN = None
 except Exception as e:
