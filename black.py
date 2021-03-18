@@ -3,8 +3,6 @@ import discord, asyncio, json, datetime, os, logging, logging.handlers
 
 from discord.ext import tasks, commands
 
-from dotenv import load_dotenv
-
 from os import system
 
 from dateutil import tz
