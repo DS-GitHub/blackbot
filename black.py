@@ -3,8 +3,6 @@ import discord, asyncio, json, datetime, os, logging, logging.handlers
 
 from discord.ext import tasks, commands
 
-from os import system
-
 from dateutil import tz
 
 intents = discord.Intents.default()
@@ -15,8 +13,6 @@ intents.presences = True
 client=commands.Bot(command_prefix='!', intents=intents)
 client.remove_command('help')
 client.load_extension('jishaku')
-
-system('title '+'!BLACKBOT')
 
 ##LOG##
 #logger 인스턴스 생성 및 로그 레벨 설정#
