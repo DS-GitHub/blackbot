@@ -3,6 +3,10 @@ import discord, asyncio, json, datetime, os, logging, logging.handlers
 
 from discord.ext import tasks, commands
 
+from dotenv import load_dotenv
+
+from os import system, getenv
+
 from dateutil import tz
 
 intents = discord.Intents.default()
@@ -13,6 +17,9 @@ intents.presences = True
 client=commands.Bot(command_prefix='!', intents=intents)
 client.remove_command('help')
 client.load_extension('jishaku')
+
+system('title '+'!BLACKBOT')
+os.chdir(r'C:\Users\bestc\OneDrive\바탕 화면\PythonWorkspace\bots\DS')
 
 ##LOG##
 #logger 인스턴스 생성 및 로그 레벨 설정#
@@ -32,7 +39,7 @@ logger.addHandler(fileHandler)
 logger.addHandler(streamHandler)
 
 MAKER=[402075873790001153]
-USER=[703248821299183697, 763246275902308352]
+USER=[703248821299183697, 763246275902308352, 681348070260211713] #부계, 제로니, 헤스티아
 BLACK=[]
 msgstatus = False
 
@@ -60,7 +67,7 @@ async def help(ctx):
         **!blacklist user**: 전체 유저 블랙리스트를 전송해줍니다.
         **!reportuser <멘션/유저ID>** [사유] [증거들]: 제공해주신 파라미터들을 토대로 개발자에게 해당 유저를 신고합니다. 개발자는 신고내역을 검토 후 블랙리스트에 등재시킬 수 있습니다.
         **!botsuggest <내용>**: 내용을 봇 개발자에게 전송해줍니다.
-        """)
+        """, color=0xffff00)
         embed.set_author(name='<> = 필수 항목, [] = 선택 항목')
         if msgstatus == False:
             await ctx.send(embed=embed)
@@ -74,7 +81,7 @@ async def help(ctx):
         **!inquire <멘션/유저ID> [항목]**: 해당 유저의 블랙리스트 기본 정보를 조회하거나, 항목 추가 시 항목에 따른 유저의 항목을 조회합니다. (항목 목록은 가이드 참조)
         **!reportuser <멘션/유저ID> [사유] [증거들]**: 제공해주신 파라미터들을 토대로 개발자에게 해당 유저를 신고합니다. 개발자는 신고내역을 검토 후 블랙리스트에 등재시킬 수 있습니다.
         **!botsuggest <내용>**: 내용을 봇 개발자에게 전송해줍니다.
-        """)
+        """, color=0xffff00)
         embed.set_author(name='<> = 필수 항목, [] = 선택 항목')
         if msgstatus == False:
             await ctx.send(embed=embed)
@@ -90,23 +97,29 @@ async def guide(ctx):
     elif ctx.author.id in USER:
         logger.debug(f'{ctx.guild.name}(ID: {ctx.guild.id})에서 {ctx.author}(ID: {ctx.author.id})가 이용자용 가이드커맨드 작동')
         embed=discord.Embed(title='BLACKBOT- 사용자 가이드', description="""
+        *<현재 블랙봇 가입서버 및 가입서버 서버원의 DM(그룹DM 포함)에서 일어난 사건 이외에는 블랙리스트에 등재하지 않고 있습니다.>*
+        *<블랙 사유에는 상황설명, 관련인, 관련인의 관계, 사건원인, 블랙이유 등의 내용이 포함될 수 있습니다. 증거로 충분히 설명이 되신다면 블랙이유(예: 일방적으로 초면에 성희롱)만 간단히 써주셔도 됩니다.>*
+        *<증거로는 동영상, 사진, 증인, 공식봇 메삭로그 등(증거의 링크를 붙여주세요.)의 객관적인 내용이 포함될 수 있으며, 일방적인 증언(사진 등도 제공하지 않고 대화만으로 증언하는것)은 포함될 수 없습니다>*
         *<모든 명령어에는 악용 방지를 위해 쿨타임이 있을 수 있습니다.>*
         **<주의! 모든 명령어는 자체 로깅시스템에 의해 사용이 기록되며, 일부 로그는 일반인도 조회가 가능합니다.>**
-        __**<경고! 본 봇으로 서버 채팅 도배를 시도하거나 욕설을 등재시키는 등 부적절한 행위를 할 시 영구/임시 블랙리스트 조치가 이뤄질 수 있습니다.>**__
+        __**<경고! 본 봇으로 서버 채팅 도배를 시도하거나 욕설을 등재시키거나 무단으로 블랙리스트를 수정하는 등 부적절한 행위를 할 시 영구/임시 블랙리스트 조치가 이뤄질 수 있습니다.>**__
         **!helpme**: !helpme 명령어가 기억이 나지 않으신다면 이 봇을 멘션하는 방법(유저당 6분에 1번으로 제한됨)으로 도움말을 전송받으실 수 있습니다.
-        **!black**: 사유와 증거는 `||.||`로 구분하여야 하며, 사유나 증거는 1024자를 넘겨서는 안됩니다. 블랙리스트는 삭제가 개발자 전용으로 제한되어 있으니, 등재를 신중히 해주세요.
-        **!edit**: 사유 혹은 증거만 수정이 가능하며, 수정잠금이 활성화됐을 경우 수정이 차단됩니다.
+        **!black**: 사유와 증거는 `||.||`로 구분하여야 하며, 사유나 증거는 1024자를 넘겨서는 안됩니다. 블랙리스트는 삭제가 개발자 전용으로 제한되어 있으니, 등재를 신중히 해주세요. 책임감있는 등재 부탁드립니다.
+        **!edit**: 사유 혹은 증거만 수정이 가능하며, 수정잠금이 활성화됐을 경우 수정이 차단됩니다. 수정을 신중히 해주시고, 일방적인 막무가내 수정 시 블랙리스트에 오르실 수 있습니다. 책임감있는 사용 부탁드립니다.
         **!inquire**: [항목 목록]-사유, 증거, 닉태그, 수정횟수, 수정시각, 수정유저, 수정내용, 수정잠금, 등재시각, 등재유저, 등재내용, 수정로그, 등재로그
         **!autoexecute**: 명령어 실행인과 본 봇에 추방&차단권한이 없다면 실행이 차단됩니다.
         **!blacklist**: 만약 블랙리스트가 2048자가 넘는다면 txt파일이 대신 전송됩니다. 절대 악성파일이 아니니 안심하세요.
         **!reportuser**: 유저를 개발자에게 신고하는 명령어입니다. 사유와 증거는 `||.||`로 구분하여야 하며, 사유나 증거는 1024자를 넘겨서는 안됩니다.
         **!botsuggest**: 블랙리스트 수정/삭제요청 시 본 명령어를 사용해주시면 되며, 건의사항은 2048자 이내로 써주셔야 하고, 수정/삭제요청 시 수정요청 시 대상 유저ID 18자, 사유 1000자 이내, 증거 1000자 이내, 구분용 띄어쓰기 3자, 수정사유 27자 이내를 지켜주시기 바랍니다.
-        """)
+        """, color=0xffff00)
         await ctx.author.send(embed=embed)
         await ctx.send(ctx.author.mention + ', 당신의 DM으로 BLACKBOT 가이드가 전송되었습니다!')
     else:
         logger.debug(f'{ctx.guild.name}(ID: {ctx.guild.id})에서 {ctx.author}(ID: {ctx.author.id})가 일반인 가이드커맨드 작동')
         embed=discord.Embed(title='BLACKBOT- 일반인 도움말', description="""
+        *<현재 블랙봇 가입서버 및 가입서버 서버원의 DM(그룹DM 포함)에서 일어난 사건 이외에는 블랙리스트에 등재하지 않고 있습니다.>*
+        *<블랙 사유에는 상황설명, 관련인, 관련인의 관계, 사건원인, 블랙이유 등의 내용이 포함될 수 있습니다. 증거로 충분히 설명이 되신다면 블랙이유(예: 일방적으로 초면에 성희롱)만 간단히 써주셔도 됩니다.>*
+        *<증거로는 동영상, 사진, 증인, 공식봇 메삭로그 등(증거의 링크를 붙여주세요.)의 객관적인 내용이 포함될 수 있으며, 일방적인 증언(사진 등도 제공하지 않고 대화만으로 증언하는것)은 포함될 수 없습니다>*
         *<모든 명령어에는 악용 방지를 위해 쿨타임이 있을 수 있습니다.>*
         **<주의! 모든 명령어는 자체 로깅시스템에 의해 사용이 기록되며, 일부 로그는 일반인도 조회가 가능합니다.>**
         __**<경고! 본 봇으로 서버 채팅 도배를 시도하거나 욕설을 등재시키는 등 부적절한 행위를 할 시 영구/임시 블랙리스트 조치가 이뤄질 수 있습니다.>**__
@@ -114,7 +127,7 @@ async def guide(ctx):
         **!inquire**: [항목 목록]-사유, 증거, 닉태그, 수정횟수, 수정시각, 수정유저, 수정내용, 수정잠금, 등재시각, 등재유저, 등재내용, 수정로그, 등재로그
         **!reportuser**: 유저를 개발자에게 신고하는 명령어입니다. 사유와 증거는 `||.||`로 구분하여야 하며, 사유나 증거는 1024자를 넘겨서는 안됩니다.
         **!botsuggest**: 블랙리스트 수정/삭제요청 시 본 명령어를 사용해주시면 되며, 건의사항은 2048자 이내로 써주셔야 하고, 수정/삭제요청 시 수정요청 시 대상 유저ID 18자, 사유 1000자 이내, 증거 1000자 이내, 구분용 띄어쓰기 3자, 수정사유 27자 이내를 지켜주시기 바랍니다.
-        """)
+        """, color=0xffff00)
         await ctx.author.send(embed=embed)
         await ctx.send(ctx.author.mention + ', 당신의 DM으로 BLACKBOT 가이드가 전송되었습니다!')
 
@@ -331,7 +344,7 @@ async def delete(ctx, userid, type:str=None):
     elif msg.content == 'N':
         await ctx.send(ctx.author.mention + ', 삭제 요청이 거절되었습니다.')
 
-@commands.cooldown(3, 5, type=commands.BucketType.user)
+@commands.cooldown(2, 5, type=commands.BucketType.user)
 @client.command()
 async def inquire(ctx, userid, type:str=None):
     if ctx.author.id in BLACK:
@@ -435,6 +448,36 @@ async def inquire(ctx, userid, type:str=None):
         logger.debug(f'{ctx.author}(ID: {ctx.author.id})에 의해 ({userid}유저가 성공적으로 블랙리스트에서 조회되었습니다.\n세부사항: {type}')
 
 @commands.guild_only()
+@commands.is_owner()
+@client.command()
+async def execute(ctx, userid, *, reason:str=''):
+    if userid.startswith('<'):
+        userid = userid.lstrip('<@!').rstrip('>')
+    user = await client.fetch_member(int(userid))
+    try:
+        await user.ban(reason=reason, delete_message_days=0)
+        await ctx.send('완료.')
+    except discord.NotFound:
+        await ctx.send('없는유저 ㅅㄱ')
+    except:
+        pass
+
+@commands.guild_only()
+@commands.is_owner()
+@client.command()
+async def unexecute(ctx, userid, *, reason:str=''):
+    if userid.startswith('<'):
+        userid = userid.lstrip('<@!').rstrip('>')
+    user = await client.fetch_member(int(userid))
+    try:
+        await user.unban(reason=reason)
+        await ctx.send('완료.')
+    except discord.NotFound:
+        await ctx.send('없는유저 ㅅㄱ')
+    except:
+        pass
+
+@commands.guild_only()
 @commands.has_guild_permissions(ban_members=True, kick_members=True)
 @commands.bot_has_permissions(ban_members=True, kick_members=True)
 @commands.cooldown(1, 4, type=commands.BucketType.user)
@@ -496,7 +539,7 @@ async def blacklist(ctx, type:str=None):
         black=[]
         with open('black-user.json', 'r', encoding='utf-8') as readfile:
             blacklist = json.load(readfile)
-        if len(blacklist) <= 1:
+        if blacklist == {}:
             await ctx.send('현재 등재된 유저 블랙리스트가 없습니다!')
             return
         for blackuser in blacklist:
@@ -527,7 +570,7 @@ async def blacklist(ctx, type:str=None):
     else:
         await ctx.send('user/guild 중 하나의 종류를 선택해주세요!')
 
-@commands.cooldown(2, 300, type=commands.BucketType.user)
+@commands.cooldown(2, 30, type=commands.BucketType.user)
 @client.command()
 async def reportuser(ctx, userid, *, additions:str=''):
     if ctx.author.id in BLACK:
@@ -572,7 +615,7 @@ async def reportuser(ctx, userid, *, additions:str=''):
     await ctx.send(embed=embed)
     status = None
 
-@commands.cooldown(1, 180, type=commands.BucketType.user)
+@commands.cooldown(1, 30, type=commands.BucketType.user)
 @client.command()
 async def botsuggest(ctx, *, detail):
     if ctx.author.id in BLACK:
@@ -584,6 +627,51 @@ async def botsuggest(ctx, *, detail):
     await requiredby(ctx, embed)
     await ds.send(embed=embed)
     logger.debug(f'{ctx.author}(ID: {ctx.author.id})에 의해 개발자에게 건의사항이 전달됨.\n세부사항: {detail}')
+
+@commands.is_owner()
+@client.command()
+async def notice(ctx, *, msg):
+    admin = ctx.channel
+    for guild in client.guilds:
+        if guild.id == 790856355589783602:
+            chan = await client.fetch_channel(821730419313475614)
+        else:
+            if guild.text_channels != []:
+                for channel in guild.text_channels:
+                    chan = channel
+        try:
+            await chan.send(msg)
+            await admin.send(f'{guild.name}의 {chan.name}에 공지가 전송됨.')
+        except discord.Forbidden:
+            excepting = [chan.id]
+            errloop = False
+            while errloop == False:
+                for channel in guild.text_channels:
+                    if channel.id not in excepting:
+                        chan = channel
+                try:
+                    await chan.send(msg)
+                    await admin.send(f'{guild.name}의 {chan.name}에 공지가 전송됨.')
+                    errloop = True
+                except discord.Forbidden:
+                    excepting.append(chan.id)
+
+@commands.is_owner()
+@client.command()
+async def send(ctx, chanid, *, msg):
+    if chanid.startswith('<'):
+        chanid = chanid.lstrip('<#').rstrip('>')
+    try:
+        channel = await client.fetch_channel(int(chanid))
+        await channel.send(msg)
+        await ctx.channel.send('완료.')
+    except Exception as e:
+        await ctx.channel.send(e)
+
+@commands.is_owner()
+@client.command()
+async def echo(ctx, *, msg):
+    await ctx.channel.send(msg)
 
 @commands.is_owner()
 @client.command()
@@ -881,37 +969,11 @@ async def on_message(message):
 
 @client.event
 async def on_guild_join(guild):
-    overwrites={
-        guild.me: discord.PermissionOverwrite(read_messages=True, manage_channels=True, send_messages=True, embed_links=True, attach_files=True, use_external_emojis=True),
-        guild.default_role: discord.PermissionOverwrite(read_messages=True, send_messages=False, read_message_history=True, add_reactions=False)
-    }
-    chanan = await guild.create_text_channel("blackbot-공지", overwrites=overwrites)
-    await chanan.send('**이 채널을 삭제하지 마세요. 채널 이름은 바꾸셔도 됩니다.**\n채널 삭제는 가능하지만 삭제 시 봇에 대한 공지사항을 서버에서 받으실 수 없습니다.\n실수로 삭제하셨다면 봇을 다시 초대하시거나, 봇 서포트서버 공지채널을 팔로우하시면 됩니다.\n채널 권한 제한도 관리자 선택적으로 가능하며, 이에 따른 공지 미발송 등은 본인 책임입니다.')
-    with open('black-chanan.txt', 'a') as f:
-        f.write(str(chanan.id) + '\n')
     print(f'BOT is added to the guild: {guild.name}(ID: {guild.id})')
 
 @client.event
 async def on_guild_remove(guild):
-    with open('black-chanan.txt', 'r') as f:
-        list = f.readlines()
-    for channel in guild.channels:
-        if str(channel.id) in list:
-            with open('black-chanan.txt', 'w') as g:
-                for line in list:
-                    if line.strip('\n') != str(channel.id):
-                        g.write(line)
     print(f'BOT is removed from the guild: {guild.name}(ID: {guild.id})')
-
-@client.event
-async def on_guild_channel_delete(channel):
-    with open('black-chanan.txt', 'r') as f:
-        list = f.readlines()
-    if str(channel.id) in list:
-        with open('black-chanan.txt', 'w') as g:
-            for line in list:
-                if line.strip('\n') != str(channel.id):
-                    g.write(line)
 
 @client.event
 async def on_ready():
@@ -951,8 +1013,8 @@ async def changing_presence():
     await client.change_presence(activity=discord.Game(name=f'BLACKBOT 작동중! - 버그 제보 및 기타 건의사항 등은 DS .𝙿#7777에게'))
     await asyncio.sleep(8)
 
-TOKEN = os.environ['token']
-try:
+load_dotenv('black.env') ; TOKEN = getenv('DISCORD_TOKEN')
+try: 
     client.run(TOKEN) ; TOKEN = None
-except Exception as e:
-    input(f'{e}오류로 인해 로그인에 실패하였습니다.')
+except Exception as e: 
+    input(f'{e}오류로 인해 로그인에 실패하였습니다.') ; TOKEN = None
