@@ -3,9 +3,7 @@ import discord, asyncio, json, datetime, os, logging, logging.handlers
 
 from discord.ext import tasks, commands
 
-from dotenv import load_dotenv
-
-from os import system, getenv
+from os import system
 
 from dateutil import tz
 
@@ -19,7 +17,6 @@ client.remove_command('help')
 client.load_extension('jishaku')
 
 system('title '+'!BLACKBOT')
-os.chdir(r'C:\Users\bestc\OneDrive\바탕 화면\PythonWorkspace\bots\DS')
 
 ##LOG##
 #logger 인스턴스 생성 및 로그 레벨 설정#
@@ -30,7 +27,7 @@ streamformatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
 fileformatter = logging.Formatter('%(asctime)s [%(filename)s:%(lineno)s] %(levelname)s: %(message)s')
 #Handler 생성#
 streamHandler = logging.StreamHandler()
-fileHandler = logging.FileHandler(r'C:\Users\bestc\OneDrive\바탕 화면\PythonWorkspace\bots\DS\black.log', encoding='utf-8')
+fileHandler = logging.FileHandler('black.log', encoding='utf-8')
 #Handler에 formatter 설정#
 streamHandler.setFormatter(streamformatter)
 fileHandler.setFormatter(fileformatter)
@@ -516,6 +513,87 @@ async def autoexecute(ctx, type:str='ban', msgdelday:int=0):
                     errcount += 1
     logger.debug(f'{ctx.author}(ID: {ctx.author.id})에 의해 {ctx.guild.name}(ID: {ctx.guild.id})에서 자동처형이 실행되었습니다.\n세부사항: {type}')
     await ctx.send(f'**{servmem}명의 서버 유저** 중 **{totcount}명**의 서버 내 유저가 **블랙리스트에 등재**되었으며, __**{succount}명**의 유저가 **성공적**으로 추방/차단되었고 **{errcount}명**의 유저가 **오류**로 인해 추방/차단되지 않았습니다.__ **남은 서버 유저는 {len(ctx.guild.members)}명입니다.**')
+
+@commands.is_owner()
+@commands.guild_only()
+@client.command()
+async def autoexecuteoverride(ctx, type:str='ban', msgdelday:int=0, servid:int=None):
+    if type != 'ban' and type != 'kick':
+        await ctx.send('종류는 ban/kick 중에 하나만 선택해주세요!')
+        return
+    if msgdelday < 0 or msgdelday > 7:
+        await ctx.send('메시지 삭제 일수는 최대 7일까지만 가능합니다. 다시 시도해주세요.')
+        return
+    guild = ctx.guild
+    if servid != None:
+        try:
+            guild = client.get_guild(servid)
+            if guild == None:
+                await ctx.send('응 그런서버 없어~')
+                return
+        except Exception as e:
+            await ctx.send(f'{e} 오류 발생.')
+            return
+    with open('black-user.json', 'r', encoding='utf-8') as readfile:
+        blacklist = json.load(readfile)
+    errcount = 0
+    succount = 0
+    totcount = 0
+    servmem = len(guild.members)
+    for member in guild.members:
+        if str(member.id) in blacklist:
+            totcount += 1
+            if type == 'ban':
+                try:
+                    await member.ban(reason=f'BLACKLIST-EXECUTED by ADMIN_AUTOEXECUTED', delete_message_days=msgdelday)
+                    succount += 1
+                except:
+                    errcount += 1
+            elif type == 'kick':
+                try:
+                    await member.kick(reason=f'BLACKLIST-EXECUTED by ADMIN_AUTOEXECUTED')
+                    succount += 1
+                except:
+                    errcount += 1
+    await ctx.send(f'{guild.name}(ID: {guild.id})에서 자동처형이 실행되었습니다. **{servmem}명의 서버 유저** 중 **{totcount}명**의 서버 내 유저가 **블랙리스트에 등재**되었으며, __**{succount}명**의 유저가 **성공적**으로 추방/차단되었고 **{errcount}명**의 유저가 **오류**로 인해 추방/차단되지 않았습니다.__ **남은 서버 유저는 {len(guild.members)}명입니다.**')
+
+@commands.is_owner()
+@client.command()
+async def allexecute(ctx, type:str='ban', msgdelday:int=0):
+    if type != 'ban' and type != 'kick':
+        await ctx.send('종류는 ban/kick 중에 하나만 선택해주세요!')
+        return
+    if msgdelday < 0 or msgdelday > 7:
+        await ctx.send('메시지 삭제 일수는 최대 7일까지만 가능합니다. 다시 시도해주세요.')
+        return
+    with open('black-user.json', 'r', encoding='utf-8') as readfile:
+        blacklist = json.load(readfile)
+    errcount = 0
+    succount = 0
+    totcount = 0
+    servmem = 0
+    errguild = []
+    for guild in client.guilds:
+        servmem += len(guild.members)
+        for member in guild.members:
+            if str(member.id) in blacklist:
+                totcount += 1
+                if type == 'ban':
+                    try:
+                        await member.ban(reason=f'BLACKLIST-EXECUTED by ADMIN_ALLEXECUTED', delete_message_days=msgdelday)
+                        succount += 1
+                    except:
+                        errcount += 1
+                        errguild.append(str(guild.id))
+                elif type == 'kick':
+                    try:
+                        await member.kick(reason=f'BLACKLIST-EXECUTED by ADMIN_ALLEXECUTED')
+                        succount += 1
+                    except:
+                        errcount += 1
+                        errguild.append(str(guild.id))
+    errguild=', '.join(errguild)
+    await ctx.send(f'**{servmem}명의 전체 서버 유저** 중 **{totcount}명**의 서버 내 유저가 **블랙리스트에 등재**되었으며, __**{succount}명**의 유저가 **성공적**으로 추방/차단되었고 **{errcount}명**의 유저가 **오류**로 인해 추방/차단되지 않았습니다.__\n오류 서버: {errguild}')
 
 async def requiredby(ctx, embed):
     if ctx.message.author.avatar != None:
@@ -1013,7 +1091,7 @@ async def changing_presence():
     await client.change_presence(activity=discord.Game(name=f'BLACKBOT 작동중! - 버그 제보 및 기타 건의사항 등은 DS .𝙿#7777에게'))
     await asyncio.sleep(8)
 
-load_dotenv('black.env') ; TOKEN = getenv('DISCORD_TOKEN')
+TOKEN = os.environ['token']
 try: 
     client.run(TOKEN) ; TOKEN = None
 except Exception as e: 
